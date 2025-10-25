@@ -14,21 +14,34 @@
     h2 {
       color: #2b4eff;
     }
+    select {
+      font-size: 16px;
+      padding: 5px 10px;
+      margin-bottom: 20px;
+    }
     button {
       display: inline-block;
       width: 150px;
       height: 150px;
       margin: 10px;
-      font-size: 20px;
       border: none;
       border-radius: 20px;
       background-color: white;
       box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
       cursor: pointer;
+      text-align: center;
       transition: 0.2s;
     }
     button:hover {
       background-color: #e7f0ff;
+    }
+    button .icon {
+      display: block;
+      font-size: 50px; /* 아이콘 크게 */
+      margin-bottom: 5px;
+    }
+    button .text {
+      font-size: 18px; /* 텍스트 기존 크기 */
     }
     #result {
       margin-top: 20px;
@@ -41,17 +54,75 @@
   <h2>🏥 QR 스마트 호출 시스템</h2>
   <p>필요한 요청을 선택해주세요</p>
 
-  <button onclick="call('물')">💧 물</button>
-  <button onclick="call('화장실')">🚻 화장실</button>
-  <button onclick="call('체위변경')">🛏 체위변경</button>
-  <button onclick="call('통증/약')">💊 통증/약</button>
-  <button onclick="call('기타')">➕ 기타</button>
+  <select id="lang" onchange="setLanguage()">
+    <option value="ko">한국어</option>
+    <option value="en">English</option>
+  </select>
+
+  <div>
+    <button id="btn-water" onclick="call(currentTexts.water)">
+      <span class="icon">💧</span>
+      <span class="text">물</span>
+    </button>
+    <button id="btn-toilet" onclick="call(currentTexts.toilet)">
+      <span class="icon">🚻</span>
+      <span class="text">화장실</span>
+    </button>
+    <button id="btn-position" onclick="call(currentTexts.position)">
+      <span class="icon">🛏</span>
+      <span class="text">체위변경</span>
+    </button>
+    <button id="btn-medicine" onclick="call(currentTexts.medicine)">
+      <span class="icon">💊</span>
+      <span class="text">통증/약</span>
+    </button>
+    <button id="btn-other" onclick="call(currentTexts.other)">
+      <span class="icon">➕</span>
+      <span class="text">기타</span>
+    </button>
+  </div>
 
   <p id="result"></p>
 
   <script>
+    const texts = {
+      ko: {
+        water: "물",
+        toilet: "화장실",
+        position: "체위변경",
+        medicine: "통증/약",
+        other: "기타",
+        received: type => `${type} 요청이 접수되었습니다.`
+      },
+      en: {
+        water: "Water",
+        toilet: "Toilet",
+        position: "Position",
+        medicine: "Medicine",
+        other: "Other",
+        received: type => `${type} request received.`
+      }
+    };
+
+    let currentTexts = texts.ko; // 기본 한국어
+
+    function setLanguage() {
+      const lang = document.getElementById('lang').value;
+      currentTexts = texts[lang];
+
+      // 버튼 텍스트 업데이트
+      document.querySelector("#btn-water .text").innerText = currentTexts.water;
+      document.querySelector("#btn-toilet .text").innerText = currentTexts.toilet;
+      document.querySelector("#btn-position .text").innerText = currentTexts.position;
+      document.querySelector("#btn-medicine .text").innerText = currentTexts.medicine;
+      document.querySelector("#btn-other .text").innerText = currentTexts.other;
+
+      // result 문구 초기화
+      document.getElementById('result').innerText = "";
+    }
+
     function call(type) {
-      document.getElementById('result').innerText = `${type} 요청이 접수되었습니다.`;
+      document.getElementById('result').innerText = currentTexts.received(type);
     }
   </script>
 </body>

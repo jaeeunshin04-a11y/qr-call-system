@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR 스마트 호출 시스템</title>
+  <style>
+    body {
+      font-family: '나눔고딕', sans-serif;
+      text-align: center;
+      background-color: #f2f8ff;
+      padding-top: 50px;
+    }
+    h2 {
+      color: #2b4eff;
+    }
+    button {
+      display: inline-block;
+      width: 150px;
+      height: 150px;
+      margin: 10px;
+      font-size: 20px;
+      border: none;
+      border-radius: 20px;
+      background-color: white;
+      box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #e7f0ff;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>🏥 QR 스마트 호출 시스템</h2>
+  <p>필요한 요청을 선택해주세요</p>
+
+  <button onclick="call('물')">💧 물</button>
+  <button onclick="call('화장실')">🚻 화장실</button>
+  <button onclick="call('체위변경')">🛏 체위변경</button>
+  <button onclick="call('통증/약')">💊 통증/약</button>
+  <button onclick="call('기타')">➕ 기타</button>
+
+  <p id="result"></p>
+
+  <script>
+    function call(type) {
+      document.getElementById('result').innerText = `${type} 요청이 접수되었습니다.`;
+    }
+  </script>
+</body>
+</html>

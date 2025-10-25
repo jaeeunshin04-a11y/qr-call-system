@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR 스마트 호출 시스템</title>
+  <style>
+    body {
+      font-family: '나눔고딕', sans-serif;
+      text-align: center;
+      background-color: #f2f8ff;
+      padding-top: 50px;
+    }
+    h2 {
+      color: #2b4eff;
+    }
+    select {
+      font-size: 16px;
+      padding: 5px 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      display: inline-block;
+      width: 150px;
+      height: 150px;
+      margin: 10px;
+      border: none;
+      border-radius: 20px;
+      background-color: white;
+      box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #e7f0ff;
+    }
+    button .icon {
+      display: block;
+      font-size: 50px; /* 아이콘 크게 */
+      margin-bottom: 5px;
+    }
+    button .text {
+      font-size: 18px; /* 텍스트 기존 크기 */
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+    #otherInput {
+      display: none;
+      margin-top: 10px;
+      font-size: 16px;
+      padding: 5px;
+      width: 60%;
+    }
+    #submitOther {
+      display: none;
+      margin-top: 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #patientDisplay {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h2>🏥 QR 스마트 호출 시스템</h2>
+  <p>필요한 요청을 선택해주세요</p>
+
+  <select id="lang" onchange="setLanguage()">
+    <option value="ko">한국어</option>
+    <option value="en">English</option>
+    <option value="ar">العربية</option>
+  </select>
+
+  <div>
+    <button id="btn-water" onclick="call(currentTexts.water)">
+      <span class="icon">💧</span>
+      <span class="text">물</span>
+    </button>
+    <button id="btn-toilet" onclick="call(currentTexts.toilet)">
+      <span class="icon">🚻</span>
+      <span class="text">화장실</span>
+    </button>
+    <button id="btn-position" onclick="call(currentTexts.position)">
+      <span class="icon">🛏</span>
+      <span class="text">체위변경</span>
+    </button>
+    <button id="btn-medicine" onclick="call(currentTexts.medicine)">
+      <span class="icon">💊</span>
+      <span class="text">통증/약</span>
+    </button>
+    <button id="btn-other" onclick="showOtherInput()">
+      <span class="icon">➕</span>
+      <span class="text">기타</span>
+    </button>
+  </div>
+
+  <input type="text" id="otherInput" placeholder="">
+  <button id="submitOther" onclick="submitOther()">제출</button>
+
+  <p id="result"></p>
+  <p id="patientDisplay"></p>
+
+  <script>
+    const texts = {
+      ko: {
+        water: "물",
+        toilet: "화장실",
+        position: "체위변경",
+        medicine: "통증/약",
+        other: "기타",
+        received: type => `${type} 요청이 접수되었습니다.`,
+        placeholder: "요구사항을 입력하세요",
+        submit: "제출"
+      },
+      en: {
+        water: "Water",
+        toilet: "Toilet",
+        position: "Position",
+        medicine: "Medicine",
+        other: "Other",
+        received: type => `${type} request received.`,
+        placeholder: "Enter your request",
+        submit: "Submit"
+      },
+      ar: {
+        water: "ماء",
+        toilet: "حمام",
+        position: "تغيير الوضعية",
+        medicine: "دواء/ألم",
+        other: "أخرى",
+        received: type => `تم استلام طلب: ${type}`,
+        placeholder: "أدخل طلبك",
+        submit: "إرسال"
+      }
+    };
+
+    let currentTexts = texts.ko;
+
+    // URL에서 patient 파라미터 읽기
+    const urlParams = new URLSearchParams(window.location.search);
+    const patientId = urlParams.get('patient') || "알 수 없음";
+    document.getElementById('patientDisplay').innerText = `환자 ID: ${patientId}`;
+
+    function setLanguage() {
+      const lang = document.getElementById('lang').value;
+      currentTexts = texts[lang];
+
+      document.querySelector("#btn-water .text").innerText = currentTexts.water;
+      document.querySelector("#btn-toilet .text").innerText = currentTexts.toilet;
+      document.querySelector("#btn-position .text").innerText = currentTexts.position;
+      document.querySelector("#btn-medicine .text").innerText = currentTexts.medicine;
+      document.querySelector("#btn-other .text").innerText = currentTexts.other;
+
+      document.getElementById('otherInput').placeholder = currentTexts.placeholder;
+      document.getElementById('submitOther').innerText = currentTexts.submit;
+
+      document.getElementById('result').innerText = "";
+      document.getElementById('otherInput').style.display = "none";
+      document.getElementById('submitOther').style.display = "none";
+    }
+
+    function call(type) {
+      document.getElementById('result').innerText = `${currentTexts.received(type)} (환자: ${patientId})`;
+      document.getElementById('otherInput').style.display = "none";
+      document.getElementById('submitOther').style.display = "none";
+    }
+
+    function showOtherInput() {
+      document.getElementById('otherInput').style.display = "inline-block";
+      document.getElementById('submitOther').style.display = "inline-block";
+      document.getElementById('otherInput').value = "";
+      document.getElementById('otherInput').focus();
+      document.getElementById('result').innerText = "";
+    }
+
+    function submitOther() {
+      const val = document.getElementById('otherInput').value.trim();
+      if(val) {
+        document.getElementById('result').innerText = `${currentTexts.received(val)} (환자: ${patientId})`;
+        document.getElementById('otherInput').style.display = "none";
+        document.getElementById('submitOther').style.display = "none";
+      } else {
+        alert(currentTexts.placeholder);
+      }
+    }
+  </script>
+</body>
+</html>

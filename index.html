@@ -163,7 +163,7 @@
 
     // ✅ Google Sheet 연동용 함수
     function sendToSheet(type) {
-const scriptURL = "https://script.google.com/macros/s/AKfycbyuY01LWrOeoNlYd2mHSI9-rl1DjkxHpBMYkSAVIM51QCTPRJLk0C7D2OIt4lNl664c/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbwshQQ0LrIJGYHef91-eHNf8LOdp_i7ei1uvZTOtirI9h2PeNNj8CENHYG8XJWwp3Is/exec";
       fetch(`${scriptURL}?patientId=${patientId}&type=${type}`)
         .then(res => res.text())
         .then(() => console.log("요청 전송 완료"))
@@ -199,4 +199,5 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbyuY01LWrOeoNlYd2mHSI
   </script>
 </body>
 </html>
+
 

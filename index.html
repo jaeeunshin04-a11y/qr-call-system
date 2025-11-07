@@ -161,8 +161,18 @@
       document.getElementById('submitOther').style.display = "none";
     }
 
+    // ✅ Google Sheet 연동용 함수
+    function sendToSheet(type) {
+const scriptURL = "https://script.google.com/macros/s/AKfycbzsvOUnOnN4-dwA5-0HGjeU_MHHoUnN9-uKEEl3x7c6bNMDW8H_J1WYvPOs2ZF0AyQq/exec";
+      fetch(`${scriptURL}?patientId=${patientId}&type=${type}`)
+        .then(res => res.text())
+        .then(() => console.log("요청 전송 완료"))
+        .catch(err => console.error("전송 오류:", err));
+    }
+
     function call(type) {
       document.getElementById('result').innerText = `${currentTexts.received(type)} (등록번호: ${patientId})`;
+      sendToSheet(type); // ✅ 버튼 누르면 시트로 전송
       document.getElementById('otherInput').style.display = "none";
       document.getElementById('submitOther').style.display = "none";
     }
@@ -179,6 +189,7 @@
       const val = document.getElementById('otherInput').value.trim();
       if(val) {
         document.getElementById('result').innerText = `${currentTexts.received(val)} (등록번호: ${patientId})`;
+        sendToSheet(val); // ✅ 기타 입력도 시트로 전송
         document.getElementById('otherInput').style.display = "none";
         document.getElementById('submitOther').style.display = "none";
       } else {

@@ -198,8 +198,8 @@
   const scriptURL = "https://script.google.com/macros/s/AKfycbzsvOUnOnN4-dwA5-0HGjeU_MHHoUnN9-uKEEl3x7c6bNMDW8H_J1WYvPOs2ZF0AyQq/exec";
 
   const params = new URLSearchParams(window.location.search);
-  const patientId = params.get("id") || "등록번호 없음";
-  document.getElementById("patient-id").textContent = "환자 등록번호: " + patientId;
+ const patientIdFromUrl = params.get("id") || "등록번호 없음";
+document.getElementById("patient-id").textContent = "환자 등록번호: " + patientIdFromUrl;
 
   function sendRequest(requestType) {
     if (patientId === "등록번호 없음") {
@@ -208,7 +208,7 @@
     }
 
     const data = {
-      id: patientId,
+      id: patientIdFromUrl,
       request: requestType,
       time: new Date().toLocaleString("ko-KR")
     };

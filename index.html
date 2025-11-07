@@ -192,5 +192,36 @@
       }
     }
   </script>
+<p id="patient-id"></p>
+
+<script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbzsvOUnOnN4-dwA5-0HGjeU_MHHoUnN9-uKEEl3x7c6bNMDW8H_J1WYvPOs2ZF0AyQq/exec";
+
+  const params = new URLSearchParams(window.location.search);
+  const patientId = params.get("id") || "등록번호 없음";
+  document.getElementById("patient-id").textContent = "환자 등록번호: " + patientId;
+
+  function sendRequest(requestType) {
+    if (patientId === "등록번호 없음") {
+      alert("등록번호가 없습니다. QR코드를 통해 접속해주세요.");
+      return;
+    }
+
+    const data = {
+      id: patientId,
+      request: requestType,
+      time: new Date().toLocaleString("ko-KR")
+    };
+
+    fetch(scriptURL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    alert(`"${requestType}" 요청이 전송되었습니다.`);
+  }
+</script>
 </body>
 </html>

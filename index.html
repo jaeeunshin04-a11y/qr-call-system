@@ -85,7 +85,7 @@
 
     // ✅ Google Sheet 전송
     function sendToSheet(type, etc="") {
-      const scriptURL = "https://script.google.com/macros/s/AKfycbx_cxJ59uS7dUyUPykmzziS50Dy5wIX9vSkquNhqip-VebP3l_ehJ6cNHoMeaqK2oTF/exec"; // 여기 바꿀 것
+      const scriptURL = "https://script.google.com/macros/s/AKfycbx8Ss8VV39g3w0cwUg-ILMlZMIdLmRVT4l9HYEPZ8iNahCPuieGpcBPbBHu2KlPHtME/exec"; // 여기 바꿀 것
       fetch(`${scriptURL}?patientId=${patientId}&type=${type}&etc=${encodeURIComponent(etc)}`)
         .then(res => res.text())
         .then(() => console.log("요청 전송 완료"))
@@ -121,4 +121,5 @@
   </script>
 </body>
 </html>
+
 

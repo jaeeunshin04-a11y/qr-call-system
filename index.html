@@ -3,123 +3,218 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR 스마트 호출 시스템</title>
+  <title>간호사 호출</title>
+
   <style>
     body {
       font-family: '나눔고딕', sans-serif;
       text-align: center;
       background-color: #f2f8ff;
-      padding-top: 50px;
+      padding-top: 40px;
     }
     h2 { color: #2b4eff; }
-    select { font-size: 16px; padding: 5px 10px; margin-bottom: 20px; }
-    button {
+
+    /* 대분류 버튼 스타일 */
+    .main-button {
       display: inline-block; width: 150px; height: 150px; margin: 10px;
       border: none; border-radius: 20px; background-color: white;
       box-shadow: 0px 3px 6px rgba(0,0,0,0.2); cursor: pointer;
-      text-align: center; transition: 0.2s;
+      transition: 0.2s;
     }
-    button:hover { background-color: #e7f0ff; }
-    button .icon { display: block; font-size: 50px; margin-bottom: 5px; }
-    button .text { font-size: 18px; }
-    #result { margin-top: 20px; font-size: 18px; color: #333; }
-    #otherInput { display: none; margin-top: 10px; font-size: 16px; padding: 5px; width: 60%; }
-    #submitOther { display: none; margin-top: 5px; padding: 5px 10px; font-size: 16px; cursor: pointer; }
-    #patientDisplay { margin-top: 20px; font-size: 18px; color: #444; font-weight: bold; }
+    .main-button:hover { background-color: #e7f0ff; }
+    .icon { display: block; font-size: 50px; margin-bottom: 5px; }
+    .text { font-size: 18px; }
+
+    #subMenu {
+      margin-top: 25px;
+    }
+
+    /* 하위항목 버튼 */
+    .sub-button {
+      display: block;
+      width: 70%;
+      margin: 10px auto;
+      padding: 15px;
+      font-size: 17px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .sub-button:hover {
+      background-color: #e8f0ff;
+    }
+
+    /* 기타 입력 */
+    #otherInput, #submitOther {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    #patientDisplay {
+      margin-top: 15px;
+      font-size: 17px;
+      font-weight: bold;
+    }
   </style>
 </head>
+
 <body>
-  <h2>🏥 QR 스마트 호출 시스템</h2>
+
+  <h2>🛎 간호사 호출</h2>
   <p>필요한 요청을 선택해주세요</p>
 
+  <!-- 다국어는 유지 -->
   <select id="lang" onchange="setLanguage()">
     <option value="ko">한국어</option>
     <option value="en">English</option>
     <option value="ar">العربية</option>
   </select>
 
-  <div>
-    <button id="btn-water" onclick="call(currentTexts.water)"><span class="icon">💧</span><span class="text">물</span></button>
-    <button id="btn-toilet" onclick="call(currentTexts.toilet)"><span class="icon">🚻</span><span class="text">화장실</span></button>
-    <button id="btn-position" onclick="call(currentTexts.position)"><span class="icon">🛏</span><span class="text">체위변경</span></button>
-    <button id="btn-medicine" onclick="call(currentTexts.medicine)"><span class="icon">💊</span><span class="text">통증/약</span></button>
-    <button id="btn-other" onclick="showOtherInput()"><span class="icon">➕</span><span class="text">기타</span></button>
+  <!-- 대분류 버튼 -->
+  <div id="mainMenu">
+    <button class="main-button" onclick="openSub('수액')">
+      <span class="icon">💉</span><span class="text">수액</span>
+    </button>
+
+    <button class="main-button" onclick="openSub('침구/시트')">
+      <span class="icon">🛏</span><span class="text">침구/시트</span>
+    </button>
+
+    <button class="main-button" onclick="openSub('화장실')">
+      <span class="icon">🚻</span><span class="text">화장실</span>
+    </button>
+
+    <button class="main-button" onclick="openSub('통증/약')">
+      <span class="icon">💊</span><span class="text">통증/약</span>
+    </button>
+
+    <button class="main-button" onclick="openSub('물')">
+      <span class="icon">💧</span><span class="text">물</span>
+    </button>
+
+    <button class="main-button" onclick="showOtherInput()">
+      <span class="icon">➕</span><span class="text">기타</span>
+    </button>
   </div>
 
-  <input type="text" id="otherInput" placeholder="">
-  <button id="submitOther" onclick="submitOther()">제출</button>
+  <!-- 하위항목 출력 장소 -->
+  <div id="subMenu"></div>
+
+  <input type="text" id="otherInput" placeholder="요구사항을 입력하세요" style="display:none;">
+  <button id="submitOther" style="display:none;" onclick="submitOther()">제출</button>
 
   <p id="result"></p>
   <p id="patientDisplay"></p>
 
   <script>
-    const texts = {
-      ko: { water:"물", toilet:"화장실", position:"체위변경", medicine:"통증/약", other:"기타",
-            received: type => `${type} 요청이 접수되었습니다.`, placeholder:"요구사항을 입력하세요", submit:"제출" },
-      en: { water:"Water", toilet:"Toilet", position:"Position", medicine:"Medicine", other:"Other",
-            received: type => `${type} request received.`, placeholder:"Enter your request", submit:"Submit" },
-      ar: { water:"ماء", toilet:"حمام", position:"تغيير الوضعية", medicine:"دواء/ألم", other:"أخرى",
-            received: type => `تم استلام طلب: ${type}`, placeholder:"أدخل طلبك", submit:"إرسال" }
+    const subOptions = {
+      "수액": [
+        "수액이 거의 다 떨어진 것 같아요",
+        "수액줄이 꺾인 것 같아요",
+        "기계에서 알람이 울리고 있어요"
+      ],
+      "침구/시트": [
+        "시트가 오염됐어요",
+        "침구가 젖었어요 / 불편해요"
+      ],
+      "화장실": [
+        "화장실 이동 도움이 필요해요",
+        "기저귀/패드 교환이 필요해요"
+      ],
+      "통증/약": [
+        "통증이 심해졌어요"
+      ],
+      "물": [
+        "물 좀 주세요"
+      ]
     };
+
+    const texts = {
+      ko: {
+        received: (type) => `${type} 요청이 접수되었습니다.`,
+        submit: "제출",
+        placeholder: "요구사항을 입력하세요"
+      },
+      en: {
+        received: (type) => `${type} request received.`,
+        submit: "Submit",
+        placeholder: "Enter your request"
+      },
+      ar: {
+        received: (type) => `تم استلام طلب: ${type}`,
+        submit: "إرسال",
+        placeholder: "أدخل طلبك"
+      }
+    };
+
     let currentTexts = texts.ko;
 
-    // ✅ URL에서 등록번호 읽기
+    // URL에서 등록번호 읽기
     const urlParams = new URLSearchParams(window.location.search);
     const patientId = urlParams.get('id') || "등록번호 없음";
     document.getElementById('patientDisplay').innerText = `환자 등록번호: ${patientId}`;
 
-    function setLanguage() {
-      const lang = document.getElementById('lang').value;
-      currentTexts = texts[lang];
-      document.querySelector("#btn-water .text").innerText = currentTexts.water;
-      document.querySelector("#btn-toilet .text").innerText = currentTexts.toilet;
-      document.querySelector("#btn-position .text").innerText = currentTexts.position;
-      document.querySelector("#btn-medicine .text").innerText = currentTexts.medicine;
-      document.querySelector("#btn-other .text").innerText = currentTexts.other;
-      document.getElementById('otherInput').placeholder = currentTexts.placeholder;
-      document.getElementById('submitOther').innerText = currentTexts.submit;
-      document.getElementById('result').innerText = "";
-      document.getElementById('otherInput').style.display = "none";
-      document.getElementById('submitOther').style.display = "none";
+    function openSub(type) {
+      const area = document.getElementById("subMenu");
+      area.innerHTML = ""; // 초기화
+
+      // 기타 입력창 숨기기
+      document.getElementById("otherInput").style.display = "none";
+      document.getElementById("submitOther").style.display = "none";
+
+      subOptions[type].forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "sub-button";
+        btn.innerText = item;
+        btn.onclick = () => sendRequest(type, item);
+        area.appendChild(btn);
+      });
     }
 
-    // ✅ Google Sheet 전송
-    function sendToSheet(type, etc="") {
-      const scriptURL = "https://script.google.com/macros/s/AKfycbx8Ss8VV39g3w0cwUg-ILMlZMIdLmRVT4l9HYEPZ8iNahCPuieGpcBPbBHu2KlPHtME/exec"; // 여기 바꿀 것
-      fetch(`${scriptURL}?patientId=${patientId}&type=${type}&etc=${encodeURIComponent(etc)}`)
-        .then(res => res.text())
-        .then(() => console.log("요청 전송 완료"))
+    function sendRequest(type, detail) {
+      const scriptURL = "YOUR_SCRIPT_URL_HERE"; // ❗ 나중에 구글 스크립트 URL로 변경
+
+      fetch(`${scriptURL}?patientId=${patientId}&type=${type}&etc=${encodeURIComponent(detail)}`)
+        .then(() => {
+          document.getElementById("result").innerText = `${currentTexts.received(type)} (등록번호: ${patientId})`;
+          document.getElementById("subMenu").innerHTML = "";
+        })
         .catch(err => console.error("전송 오류:", err));
     }
 
-    function call(type) {
-      document.getElementById('result').innerText = `${currentTexts.received(type)} (등록번호: ${patientId})`;
-      sendToSheet(type);
-      document.getElementById('otherInput').style.display = "none";
-      document.getElementById('submitOther').style.display = "none";
-    }
-
     function showOtherInput() {
-      document.getElementById('otherInput').style.display = "inline-block";
-      document.getElementById('submitOther').style.display = "inline-block";
-      document.getElementById('otherInput').value = "";
-      document.getElementById('otherInput').focus();
-      document.getElementById('result').innerText = "";
+      document.getElementById("subMenu").innerHTML = "";
+      document.getElementById("otherInput").style.display = "inline-block";
+      document.getElementById("submitOther").style.display = "inline-block";
+      document.getElementById("otherInput").value = "";
     }
 
     function submitOther() {
-      const val = document.getElementById('otherInput').value.trim();
-      if(val) {
-        document.getElementById('result').innerText = `${currentTexts.received(val)} (등록번호: ${patientId})`;
-        sendToSheet("기타", val);
-        document.getElementById('otherInput').style.display = "none";
-        document.getElementById('submitOther').style.display = "none";
-      } else {
-        alert(currentTexts.placeholder);
-      }
+      const val = document.getElementById("otherInput").value.trim();
+      if (!val) return alert(currentTexts.placeholder);
+
+      sendRequest("기타", val);
+      document.getElementById("otherInput").style.display = "none";
+      document.getElementById("submitOther").style.display = "none";
+    }
+
+    function setLanguage() {
+      const lang = document.getElementById("lang").value;
+      currentTexts = texts[lang];
+      document.getElementById("otherInput").placeholder = currentTexts.placeholder;
+      document.getElementById("submitOther").innerText = currentTexts.submit;
+      document.getElementById("result").innerText = "";
     }
   </script>
+
 </body>
 </html>
-
-

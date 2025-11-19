@@ -62,11 +62,13 @@
     <option value="ar">العربية</option>
   </select>
 
-  <!-- 대분류 버튼 자리 -->
+  <!-- 대분류 버튼 -->
   <div id="mainMenu"></div>
 
+  <!-- 하위 메뉴 -->
   <div id="subMenu"></div>
 
+  <!-- 기타 입력창 -->
   <input type="text" id="otherInput" style="display:none;">
   <button id="submitOther" style="display:none;" onclick="submitOther()"></button>
 
@@ -74,7 +76,7 @@
   <p id="patientDisplay"></p>
 
   <script>
-    /* ---- 언어별 텍스트 정리 ---- */
+    /* ---- 언어별 텍스트 ---- */
     const menuText = {
       ko: {
         title: "🛎 간호사 호출",
@@ -230,17 +232,17 @@
       area.innerHTML = "";
       hideOther();
 
-      currentTexts.sub[type].forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "sub-button";
-        btn.innerText = item;
-        btn.onclick = () => sendRequest(type, item);
-        area.appendChild(btn);
-      });
-
-      if (type === "기타") {
-        showOther();
+      if (currentTexts.sub[type]) {
+        currentTexts.sub[type].forEach(item => {
+          const btn = document.createElement("button");
+          btn.className = "sub-button";
+          btn.innerText = item;
+          btn.onclick = () => sendRequest(type, item);
+          area.appendChild(btn);
+        });
       }
+
+      if (type === "기타") showOther();
     }
 
     /* ---- 요청 전송 ---- */
@@ -276,6 +278,7 @@
 
       sendRequest("기타", val);
       hideOther();
+      document.getElementById("otherInput").value = "";
     }
 
     /* ---- 언어 변경 ---- */

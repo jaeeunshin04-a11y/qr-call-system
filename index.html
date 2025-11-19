@@ -105,7 +105,7 @@ if(type==="기타") showOther();
 }
 
 function sendRequest(type,detail){
-const scriptURL="YOUR_SCRIPT_URL_HERE"; 
+const scriptURL="https://script.google.com/macros/s/AKfycbw8Ua4lvWBUijtQWnRx-NWc5g371eaibSFRRFxD4Aqej5rE_rxvDDunYnJuedUi_UoD/exec"; 
 fetch(`${scriptURL}?patientId=${patientId}&type=${type}&etc=${encodeURIComponent(detail)}`)
 .then(()=>{document.getElementById("result").innerText=currentTexts.received(type,"접수"); document.getElementById("subMenu").innerHTML="";})
 .catch(err=>console.error("전송 오류:",err));
@@ -125,3 +125,4 @@ renderMainMenu();
 
 </body>
 </html>
+

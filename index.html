@@ -3,169 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>환자 호출</title>
+<title>요청하기</title>
 <style>
-body { font-family:'나눔고딕', sans-serif; text-align:center; background:#f2f8ff; padding:40px; }
-h2 { color:#2b4eff; }
-.main-button { display:inline-block; width:150px; height:150px; margin:10px; border:none; border-radius:20px; background:white; box-shadow:0 3px 6px rgba(0,0,0,0.2); cursor:pointer; transition:0.2s; }
-.main-button:hover { background:#e7f0ff; }
-.icon { display:block; font-size:50px; margin-bottom:5px; }
-.text { font-size:18px; }
-#subMenu { margin-top:25px; }
-.sub-button { display:block; width:70%; margin:10px auto; padding:15px; font-size:17px; background:#fff; border:1px solid #ccc; border-radius:10px; cursor:pointer; transition:0.15s; }
-.sub-button:hover { background:#e8f0ff; }
-#otherInput, #submitOther { margin-top:10px; padding:10px; font-size:16px; }
-#result { margin-top:20px; font-size:20px; font-weight:bold; color:#2b4eff; }
-#patientDisplay { margin-top:15px; font-size:17px; font-weight:bold; }
+  body { font-family: Arial; padding: 20px; }
+  .btn { 
+    padding: 15px; margin: 10px 0; width: 100%; 
+    font-size: 18px; border: none; border-radius: 12px;
+    background:#4a6cf7; color:white; 
+  }
+  #msg { margin-top: 20px; font-size: 17px; font-weight: 600; color:#333; }
 </style>
 </head>
 <body>
 
-<h2 id="title">🛎 간호사 호출</h2>
-<p id="desc">필요한 요청을 선택해주세요</p>
+<h2>간호사 호출 요청</h2>
 
-<select id="lang" onchange="setLanguage()">
-  <option value="ko">한국어</option>
-  <option value="en">English</option>
-  <option value="ar">العربية</option>
-</select>
+<!-- 요청 버튼들 -->
+<button class="btn" onclick="sendRequest('물 요청')">물 요청</button>
+<button class="btn" onclick="sendRequest('체위 변경')">체위 변경</button>
+<button class="btn" onclick="sendRequest('수액 관련')">수액 관련</button>
+<button class="btn" onclick="sendRequest('통증')">통증</button>
 
-<div id="mainMenu"></div>
-<div id="subMenu"></div>
-<input type="text" id="otherInput" style="display:none;">
-<button id="submitOther" style="display:none;" onclick="submitOther()"></button>
+<h3>기타 요청</h3>
+<input type="text" id="etcInput" placeholder="기타 내용을 입력하세요" style="width:100%;padding:10px;margin-bottom:10px;">
+<button class="btn" onclick="sendEtc()">기타 요청 보내기</button>
 
-<p id="result"></p>
-<p id="patientDisplay"></p>
+<div id="msg"></div>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbwE-SkiFCtL5RJVpetstApp165V3gyudMMznmORuDgR-UHtcPrpDXd8Qkj7jK8XYvx2/exec"; // 앱스크립트 URL 넣기
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqxiFIVZsm0CQ8XaHytPYR8u6d3vcW9L19LcBJYOWFLObSD6amYrKCGCnrZgIOTyyU/exec";
 
-const menuText = {
-  ko: {
-    title: "🛎 간호사 호출",
-    desc: "필요한 요청을 선택해주세요",
-    menu: { "수액":"수액", "침구/시트":"침구/시트", "화장실":"화장실", "통증/약":"통증/약", "물":"물", "기타":"기타" },
-    sub: {
-      "수액":["수액이 거의 다 떨어진 것 같아요","수액줄이 꺾인 것 같아요","기계에서 알람이 울리고 있어요"],
-      "침구/시트":["시트가 오염됐어요","침구가 젖었어요 / 불편해요"],
-      "화장실":["화장실 이동 도움이 필요해요","기저귀/패드 교환이 필요해요"],
-      "통증/약":["통증이 심해졌어요"],
-      "물":["물 좀 주세요"]
-    },
-    submit: "제출",
-    placeholder: "요구사항을 입력하세요",
-    received: { "접수":"요청이 접수되었습니다", "확인":"담당 간호사가 확인했습니다. 곧 방문하겠습니다.", "완료":"요청이 처리되었습니다" }
-  },
-  en: {
-    title:"🛎 Nurse Call",
-    desc:"Please select your request",
-    menu: { "수액":"IV Fluid", "침구/시트":"Bedding/Sheet", "화장실":"Bathroom", "통증/약":"Pain/Medication", "물":"Water", "기타":"Other" },
-    sub: {
-      "수액":["IV bag seems almost empty","IV line might be kinked","Machine alarm is ringing"],
-      "침구/시트":["Sheets are soiled","Bedding is wet/uncomfortable"],
-      "화장실":["I need help going to the bathroom","Diaper/pad needs changing"],
-      "통증/약":["Pain has increased"],
-      "물":["Please give me some water"]
-    },
-    submit:"Submit",
-    placeholder:"Enter your request",
-    received: { "접수":"Request received", "확인":"Nurse has checked. Will visit soon.", "완료":"Request completed" }
-  },
-  ar: {
-    title:"🛎 استدعاء الممرضة",
-    desc:"الرجاء اختيار الطلب",
-    menu: { "수액":"محلول وريدي", "침구/시트":"الأسرة/الشرشف", "화장실":"الحمام", "통증/약":"الألم/الدواء", "물":"ماء", "기타":"أخرى" },
-    sub: {
-      "수액":["يبدو أن المحلول الوريدي أوشك على النفاد","قد تكون أنبوب المحلول ملتوية","جهاز المحلول يصدر إنذارًا"],
-      "침구/시트":["الشرشف متسخ","الفراش مبلل / غير مريح"],
-      "화장실":["أحتاج مساعدة في الذهاب إلى الحمام","أحتاج لتغيير الحفاض/الوسادة"],
-      "통증/약":["الألم ازداد"],
-      "물":["أريد ماءً من فضلك"]
-    },
-    submit:"إرسال",
-    placeholder:"أدخل طلبك",
-    received: { "접수":"تم استلام الطلب", "확인":"تم التحقق من قبل الممرضة. ستتم الزيارة قريبًا.", "완료":"تم تنفيذ الطلب" }
-  }
-};
+// 환자 ID (병실 QR마다 다르게 넣는 부분)
+const PATIENT_ID = "101";  // 병실마다 바꿔서 배포
 
-let currentLang="ko";
-let currentTexts=menuText.ko;
-const urlParams=new URLSearchParams(window.location.search);
-const patientId=urlParams.get('id')||"등록번호 없음";
-document.getElementById('patientDisplay').innerText=`환자 등록번호: ${patientId}`;
-
-function renderMainMenu(){
-  const mainMenu=document.getElementById("mainMenu");
-  mainMenu.innerHTML="";
-  const icons={"수액":"💉","침구/시트":"🛏","화장실":"🚻","통증/약":"💊","물":"💧","기타":"➕"};
-  Object.keys(currentTexts.menu).forEach(key=>{
-    const btn=document.createElement("button");
-    btn.className="main-button";
-    btn.onclick=()=>openSub(key);
-    btn.innerHTML=`<span class="icon">${icons[key]}</span><span class="text">${currentTexts.menu[key]}</span>`;
-    mainMenu.appendChild(btn);
-  });
+// 요청 보내기
+function sendRequest(type){
+  sendToServer(type, "");
 }
 
-function openSub(type){
-  const area=document.getElementById("subMenu");
-  area.innerHTML="";
-  hideOther();
-  if(currentTexts.sub[type]){
-    currentTexts.sub[type].forEach(item=>{
-      const btn=document.createElement("button");
-      btn.className="sub-button";
-      btn.innerText=item;
-      btn.onclick=()=>sendRequest(type,item);
-      area.appendChild(btn);
+// 기타 요청 보내기
+function sendEtc(){
+  const etc = document.getElementById("etcInput").value.trim();
+  if(!etc){
+    document.getElementById("msg").innerHTML = "⚠ 기타 내용을 입력해주세요.";
+    return;
+  }
+  sendToServer("기타", etc);
+}
+
+// 서버로 요청 전송
+function sendToServer(type, etcText){
+  document.getElementById("msg").innerHTML = "⏳ 요청을 전송하는 중입니다...";
+
+  fetch(`${SCRIPT_URL}?patientId=${encodeURIComponent(PATIENT_ID)}&type=${encodeURIComponent(type)}&etc=${encodeURIComponent(etcText)}`)
+    .then(res => res.text())
+    .then(text => {
+      document.getElementById("msg").innerHTML = 
+        "✔ 요청이 접수되었습니다. 잠시만 기다려주세요.";
+
+      // 5초 뒤 확인 메시지 확인 폴링 시작
+      checkConfirmStatus();
+    })
+    .catch(err=>{
+      document.getElementById("msg").innerHTML = "⚠ 요청 전송 중 오류 발생. 다시 시도해주세요.";
     });
-  }
-  if(type==="기타") showOther();
 }
 
-function sendRequest(type,detail){
-  fetch(`${sheetURL}?patientId=${patientId}&type=${type}&etc=${encodeURIComponent(detail)}`)
-  .then(()=>{ showResult("접수"); document.getElementById("subMenu").innerHTML=""; })
-  .catch(err=>console.error(err));
+// 확인 / 완료 안내문구 자동 반영
+function checkConfirmStatus(){
+  const interval = setInterval(()=>{
+    fetch(SCRIPT_URL + "?mode=getStatus&patientId=" + PATIENT_ID)
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === "확인됨"){
+          document.getElementById("msg").innerHTML = "👩‍⚕️ 간호사가 요청을 확인했습니다. 잠시만 기다려주세요.";
+        }
+        if(data.status === "완료"){
+          document.getElementById("msg").innerHTML = "✔ 요청이 처리되었습니다. 필요 시 다시 요청해주세요.";
+          clearInterval(interval);
+        }
+      })
+  }, 3000);
 }
-
-function showResult(status){
-  document.getElementById("result").innerText=currentTexts.received[status];
-}
-
-function showOther(){
-  document.getElementById("otherInput").style.display="inline-block";
-  document.getElementById("submitOther").style.display="inline-block";
-  document.getElementById("otherInput").placeholder=currentTexts.placeholder;
-  document.getElementById("submitOther").innerText=currentTexts.submit;
-}
-
-function hideOther(){
-  document.getElementById("otherInput").style.display="none";
-  document.getElementById("submitOther").style.display="none";
-}
-
-function submitOther(){
-  const val=document.getElementById("otherInput").value.trim();
-  if(!val) return alert(currentTexts.placeholder);
-  sendRequest("기타",val);
-  hideOther();
-}
-
-function setLanguage(){
-  currentLang=document.getElementById("lang").value;
-  currentTexts=menuText[currentLang];
-  document.getElementById("title").innerText=currentTexts.title;
-  document.getElementById("desc").innerText=currentTexts.desc;
-  document.getElementById("otherInput").placeholder=currentTexts.placeholder;
-  document.getElementById("submitOther").innerText=currentTexts.submit;
-  renderMainMenu();
-  document.getElementById("subMenu").innerHTML="";
-  document.getElementById("result").innerText="";
-}
-
-renderMainMenu();
 </script>
+
 </body>
 </html>

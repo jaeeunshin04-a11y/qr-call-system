@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>간호사 호출</title>
+<title>환자용 간호사 호출</title>
 <style>
 body { font-family:'나눔고딕', sans-serif; text-align:center; background:#f2f8ff; padding:40px; }
-h2 { color:#2b4eff; }
+h2 { color:#2b4eff; font-size:28px; }
 .main-button { display:inline-block; width:150px; height:150px; margin:10px; border:none; border-radius:20px; background:white; box-shadow:0 3px 6px rgba(0,0,0,0.2); cursor:pointer; transition:0.2s; }
 .main-button:hover { background:#e7f0ff; }
 .icon { display:block; font-size:50px; margin-bottom:5px; }
@@ -15,8 +15,8 @@ h2 { color:#2b4eff; }
 .sub-button { display:block; width:70%; margin:10px auto; padding:15px; font-size:17px; background:#fff; border:1px solid #ccc; border-radius:10px; cursor:pointer; transition:0.15s; }
 .sub-button:hover { background:#e8f0ff; }
 #otherInput, #submitOther { margin-top:10px; padding:10px; font-size:16px; }
-#result { margin-top:20px; font-size:20px; font-weight:bold; color:#2b4eff; }
-#patientDisplay { margin-top:15px; font-size:17px; font-weight:bold; }
+#result { margin-top:20px; font-size:22px; font-weight:bold; color:#2b4eff; }
+#patientDisplay { margin-top:15px; font-size:18px; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -39,7 +39,7 @@ h2 { color:#2b4eff; }
 <p id="patientDisplay"></p>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbzQVKCXorHUox-68EiaSwSqqmDvIfgU_FNCfCq37nfxmCkl76Op97upp7rNw4SrZ9do/exec";
+const sheetURL = "https://script.google.com/macros/s/AKfycby0yP5PnSX1IHzAdRCGJlS_qbY1DfKdQQ-aNp8JoQ_563C4iKyaljOUANBWsfVpxp7M/exec";
 
 const menuText = {
   ko: {
@@ -47,11 +47,11 @@ const menuText = {
     desc: "필요한 요청을 선택해주세요",
     menu: { "수액":"수액", "침구/시트":"침구/시트", "화장실":"화장실", "통증/약":"통증/약", "물":"물", "기타":"기타" },
     sub: {
-      "수액":["수액이 거의 다 떨어진 것 같아요","수액줄이 꺾인 것 같아요","기계에서 알람이 울리고 있어요"],
-      "침구/시트":["시트가 오염됐어요","침구가 젖었어요 / 불편해요"],
-      "화장실":["화장실 이동 도움이 필요해요","기저귀/패드 교환이 필요해요"],
-      "통증/약":["통증이 심해졌어요"],
-      "물":["물 좀 주세요"]
+      "수액":["수액 기계 알람","수액 줄 꺾임","수액 거의 다 떨어짐"],
+      "침구/시트":["시트 오염","침구 젖음/불편"],
+      "화장실":["이동 도움 필요","기저귀/패드 교환 필요"],
+      "통증/약":["통증 심해짐"],
+      "물":["물 요청"]
     },
     submit: "제출",
     placeholder: "요구사항을 입력하세요",
@@ -61,11 +61,11 @@ const menuText = {
     title:"🛎 Nurse Call", desc:"Please select your request",
     menu: { "수액":"IV Fluid", "침구/시트":"Bedding/Sheet", "화장실":"Bathroom", "통증/약":"Pain/Medication", "물":"Water", "기타":"Other" },
     sub: {
-      "수액":["IV bag seems almost empty","IV line might be kinked","Machine alarm is ringing"],
-      "침구/시트":["Sheets are soiled","Bedding is wet/uncomfortable"],
-      "화장실":["I need help going to the bathroom","Diaper/pad needs changing"],
-      "통증/약":["Pain has increased"],
-      "물":["Please give me some water"]
+      "수액":["IV machine alarm","IV line kink","IV bag almost empty"],
+      "침구/시트":["Sheets soiled","Bedding wet/uncomfortable"],
+      "화장실":["Need help moving","Diaper/pad change needed"],
+      "통증/약":["Pain worsened"],
+      "물":["Water request"]
     },
     submit:"Submit", placeholder:"Enter your request",
     received: { "접수":"Request received", "확인":"Nurse has checked. Will visit soon.", "완료":"Request completed" }
@@ -74,11 +74,11 @@ const menuText = {
     title:"🛎 استدعاء الممرضة", desc:"الرجاء اختيار الطلب",
     menu: { "수액":"محلول وريدي", "침구/시트":"الأسرة/الشرشف", "화장실":"الحمام", "통증/약":"الألم/الدواء", "물":"ماء", "기타":"أخرى" },
     sub: {
-      "수액":["يبدو أن المحلول الوريدي أوشك على النفاد","قد تكون أنبوب المحلول ملتوية","جهاز المحلول يصدر إنذارًا"],
-      "침구/시트":["الشرشف متسخ","الفراش مبلل / غير مريح"],
-      "화장실":["أحتاج مساعدة في الذهاب إلى الحمام","أحتاج لتغيير الحفاض/الوسادة"],
+      "수액":["تنبيه جهاز المحلول","انحراف أنبوب المحلول","المحلول على وشك النفاد"],
+      "침구/시트":["الشرشف متسخ","الفراش مبلل/غير مريح"],
+      "화장실":["أحتاج مساعدة في التنقل","تغيير الحفاض/الوسادة"],
       "통증/약":["الألم ازداد"],
-      "물":["أريد ماءً من فضلك"]
+      "물":["طلب ماء"]
     },
     submit:"إرسال", placeholder:"أدخل طلبك",
     received: { "접수":"تم استلام الطلب", "확인":"تم التحقق من قبل الممرضة. ستتم الزيارة قريبًا.", "완료":"تم تنفيذ الطلب" }

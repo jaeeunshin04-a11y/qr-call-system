@@ -31,17 +31,15 @@
 <div id="msg"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqxiFIVZsm0CQ8XaHytPYR8u6d3vcW9L19LcBJYOWFLObSD6amYrKCGCnrZgIOTyyU/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk9V6WkZEFyF4AJjg2eIHQ7KlN_nRaHV-V7D5x7cmBH0HJePExQu_VhznBGuAvcln3/exec";
+const PATIENT_ID = "101";
 
-// 환자 ID (병실 QR마다 다르게 넣는 부분)
-const PATIENT_ID = "101";  // 병실마다 바꿔서 배포
-
-// 요청 보내기
+// 요청 버튼
 function sendRequest(type){
   sendToServer(type, "");
 }
 
-// 기타 요청 보내기
+// 기타 요청
 function sendEtc(){
   const etc = document.getElementById("etcInput").value.trim();
   if(!etc){
@@ -51,39 +49,36 @@ function sendEtc(){
   sendToServer("기타", etc);
 }
 
-// 서버로 요청 전송
+// 서버로 전송
 function sendToServer(type, etcText){
   document.getElementById("msg").innerHTML = "⏳ 요청을 전송하는 중입니다...";
 
-  fetch(`${SCRIPT_URL}?patientId=${encodeURIComponent(PATIENT_ID)}&type=${encodeURIComponent(type)}&etc=${encodeURIComponent(etcText)}`)
+  fetch(`${SCRIPT_URL}?patientId=${PATIENT_ID}&type=${encodeURIComponent(type)}&etc=${encodeURIComponent(etcText)}`)
     .then(res => res.text())
-    .then(text => {
-      document.getElementById("msg").innerHTML = 
-        "✔ 요청이 접수되었습니다. 잠시만 기다려주세요.";
-
-      // 5초 뒤 확인 메시지 확인 폴링 시작
+    .then(()=>{
+      document.getElementById("msg").innerHTML = "✔ 요청이 접수되었습니다. 잠시만 기다려주세요.";
       checkConfirmStatus();
     })
-    .catch(err=>{
-      document.getElementById("msg").innerHTML = "⚠ 요청 전송 중 오류 발생. 다시 시도해주세요.";
+    .catch(()=>{
+      document.getElementById("msg").innerHTML = "⚠ 오류가 발생했습니다. 다시 시도해주세요.";
     });
 }
 
-// 확인 / 완료 안내문구 자동 반영
+// 상태 확인
 function checkConfirmStatus(){
   const interval = setInterval(()=>{
-    fetch(SCRIPT_URL + "?mode=getStatus&patientId=" + PATIENT_ID)
-      .then(res => res.json())
-      .then(data => {
+    fetch(`${SCRIPT_URL}?mode=getStatus&patientId=${PATIENT_ID}`)
+      .then(res=>res.json())
+      .then(data=>{
         if(data.status === "확인됨"){
           document.getElementById("msg").innerHTML = "👩‍⚕️ 간호사가 요청을 확인했습니다. 잠시만 기다려주세요.";
-        }
-        if(data.status === "완료"){
+        } 
+        else if(data.status === "완료"){
           document.getElementById("msg").innerHTML = "✔ 요청이 처리되었습니다. 필요 시 다시 요청해주세요.";
           clearInterval(interval);
         }
-      })
-  }, 3000);
+      });
+  }, 3000); // 3초마다 확인
 }
 </script>
 

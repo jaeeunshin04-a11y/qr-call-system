@@ -39,7 +39,7 @@ h2 { color:#2b4eff; }
 <p id="patientDisplay"></p>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbyk9V6WkZEFyF4AJjg2eIHQ7KlN_nRaHV-V7D5x7cmBH0HJePExQu_VhznBGuAvcln3/exec"; // 여기에 실제 앱스크립트 URL 넣기
+const sheetURL = "https://script.google.com/macros/s/AKfycbw1b5ucdbPwLSW6JKz8rH5rttNDqdOfF5lSxwUJb5Gz5kMEuVXY9cv4ueKnvR3MYFpb/exec"; // 여기에 실제 앱스크립트 URL 넣기
 const urlParams = new URLSearchParams(window.location.search);
 const patientId = urlParams.get('id') || "등록번호 없음";
 document.getElementById('patientDisplay').innerText = `환자 등록번호: ${patientId}`;
@@ -171,3 +171,4 @@ renderMainMenu();
 </script>
 </body>
 </html>
+
